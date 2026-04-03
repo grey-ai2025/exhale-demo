@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Exhale — Family Assistant</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..900;1,9..144,300..900&family=DM+Sans:ital,opsz,wght@0,9..40,300..700;1,9..40,300..700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #FBF7F2;
+    --bg-warm: #F5EDE3;
+    --surface: #FFFFFF;
+    --ink: #2C2420;
+    --ink-soft: #6B5E55;
+    --ink-muted: #A89B91;
+    --accent: #C4603C;
+    --accent-soft: #E8A88C;
+    --accent-bg: #FDF0EB;
+    --user-bg: #2C2420;
+    --user-text: #FBF7F2;
+    --bot-bg: #FFFFFF;
+    --border: #E8DDD3;
+    --shadow: rgba(44, 36, 32, 0.06);
+    --shadow-md: rgba(44, 36, 32, 0.1);
+    --radius: 20px;
+    --radius-sm: 12px;
+    --font-display: 'Fraunces', Georgia, serif;
+    --font-body: 'DM Sans', -apple-system, sans-serif;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html, body {
+    height: 100%;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--font-body);
+    -webkit-font-smoothing: antialiased;
+    overflow: hidden;
+  }
+
+  .app {
+    display: flex;
+    flex-direction: column;
+    height: 100dvh;
+    max-width: 520px;
+    margin: 0 auto;
+    background: var(--bg);
+    position: relative;
+  }
+
+  @media (min-width: 540px) {
+    body { background: #EDE6DC; }
+    .app {
+      margin-top: 24px;
+      height: calc(100dvh - 48px);
+      border-radius: 24px;
+      box-shadow: 0 8px 40px var(--shadow-md), 0 0 0 1px var(--border);
+      overflow: hidden;
+    }
+  }
+
+  /* ---- Header ---- */
+  .header {
+    padding: 20px 24px 16px;
+    background: var(--bg);
+    border-bottom: 1px solid var(--border);
+    position: relative;
+    z-index: 10;
+    flex-shrink: 0;
+  }
+
+  .header-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .brand-icon {
+    width: 40px;
+    height: 40px;
+    background: var(--accent);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 20px;
+    letter-spacing: -0.02em;
+    box-shadow: 0 2px 8px rgba(196, 96, 60, 0.3);
+  }
+
+  .brand-text h1 {
+    font-family: var(--font-display);
+    font-size: 22px;
+    font-weight: 600;
+    letter-spacing: -0.03em;
+    color: var(--ink);
+    line-height: 1;
+  }
+
+  .brand-text span {
+    font-size: 12px;
+    color: var(--ink-muted);
+    letter-spacing: 0.02em;
+    font-weight: 500;
+  }
+
+  .rate-badge {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--bg-warm);
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--ink-soft);
+    border: 1px solid var(--border);
+    transition: all 0.3s ease;
+  }
+
+  .rate-badge.low {
+    background: #FDF0EB;
+    color: var(--accent);
+    border-color: var(--accent-soft);
+  }
+
+  .rate-badge.depleted {
+    background: #FCEAE4;
+    color: #B7432A;
+    border-color: #E8A88C;
+  }
+
+  .rate-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #8DB580;
+    flex-shrink: 0;
+  }
+
+  .rate-badge.low .rate-dot { background: var(--accent); }
+  .rate-badge.depleted .rate-dot { background: #B7432A; }
+
+  .demo-bar {
+    margin-top: 12px;
+    background: var(--accent-bg);
+    border: 1px solid var(--accent-soft);
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-size: 11.5px;
+    color: var(--accent);
+    font-weight: 500;
+    line-height: 1.4;
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .demo-bar svg {
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  /* ---- Messages ---- */
+  .messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .messages::-webkit-scrollbar { width: 4px; }
+  .messages::-webkit-scrollbar-track { background: transparent; }
+  .messages::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+  .msg {
+    max-width: 85%;
+    padding: 12px 16px;
+    line-height: 1.55;
+    font-size: 14.5px;
+    animation: msgIn 0.35s cubic-bezier(0.22, 1, 0.36, 1) both;
+    word-break: break-word;
+  }
+
+  @keyframes msgIn {
+    from { opacity: 0; transform: translateY(8px) scale(0.97); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+  }
+
+  .msg.user {
+    align-self: flex-end;
+    background: var(--user-bg);
+    color: var(--user-text);
+    border-radius: var(--radius) var(--radius) 6px var(--radius);
+    font-weight: 450;
+  }
+
+  .msg.bot {
+    align-self: flex-start;
+    background: var(--bot-bg);
+    color: var(--ink);
+    border-radius: var(--radius) var(--radius) var(--radius) 6px;
+    border: 1px solid var(--border);
+    box-shadow: 0 1px 3px var(--shadow);
+  }
+
+  .msg.bot b, .msg.bot strong { font-weight: 650; color: var(--ink); }
+  .msg.bot i, .msg.bot em { color: var(--ink-soft); }
+  .msg.bot a {
+    color: var(--accent);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    text-decoration-color: var(--accent-soft);
+  }
+  .msg.bot a:hover { text-decoration-color: var(--accent); }
+
+  .msg.error {
+    align-self: center;
+    background: #FCEAE4;
+    color: #B7432A;
+    border-radius: var(--radius-sm);
+    font-size: 13px;
+    font-weight: 500;
+    text-align: center;
+    max-width: 90%;
+    border: 1px solid #E8A88C;
+  }
+
+  .msg.welcome {
+    align-self: center;
+    text-align: center;
+    background: transparent;
+    border: none;
+    box-shadow: none;
+    padding: 32px 20px;
+    max-width: 100%;
+  }
+
+  .welcome-icon {
+    font-size: 36px;
+    margin-bottom: 12px;
+    display: block;
+  }
+
+  .welcome h2 {
+    font-family: var(--font-display);
+    font-size: 24px;
+    font-weight: 500;
+    letter-spacing: -0.03em;
+    margin-bottom: 8px;
+    color: var(--ink);
+  }
+
+  .welcome p {
+    color: var(--ink-muted);
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  .suggestions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: center;
+    margin-top: 16px;
+  }
+
+  .suggestion {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 8px 14px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--ink-soft);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-family: var(--font-body);
+  }
+
+  .suggestion:hover {
+    background: var(--accent-bg);
+    border-color: var(--accent-soft);
+    color: var(--accent);
+    transform: translateY(-1px);
+  }
+
+  /* Typing indicator */
+  .typing {
+    align-self: flex-start;
+    display: flex;
+    gap: 5px;
+    padding: 16px 20px;
+    background: var(--bot-bg);
+    border-radius: var(--radius) var(--radius) var(--radius) 6px;
+    border: 1px solid var(--border);
+    box-shadow: 0 1px 3px var(--shadow);
+    animation: msgIn 0.3s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  .typing span {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--ink-muted);
+    animation: bounce 1.4s infinite ease-in-out;
+  }
+
+  .typing span:nth-child(1) { animation-delay: 0s; }
+  .typing span:nth-child(2) { animation-delay: 0.16s; }
+  .typing span:nth-child(3) { animation-delay: 0.32s; }
+
+  @keyframes bounce {
+    0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
+    30% { transform: translateY(-6px); opacity: 1; }
+  }
+
+  /* ---- Input ---- */
+  .input-area {
+    padding: 12px 16px 16px;
+    background: var(--bg);
+    border-top: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+
+  @supports (padding-bottom: env(safe-area-inset-bottom)) {
+    .input-area { padding-bottom: calc(16px + env(safe-area-inset-bottom)); }
+  }
+
+  .input-wrap {
+    display: flex;
+    align-items: flex-end;
+    gap: 10px;
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: 16px;
+    padding: 6px 6px 6px 16px;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .input-wrap:focus-within {
+    border-color: var(--accent-soft);
+    box-shadow: 0 0 0 3px rgba(196, 96, 60, 0.08);
+  }
+
+  .input-wrap textarea {
+    flex: 1;
+    border: none;
+    outline: none;
+    resize: none;
+    font-family: var(--font-body);
+    font-size: 15px;
+    line-height: 1.45;
+    color: var(--ink);
+    background: transparent;
+    padding: 8px 0;
+    min-height: 22px;
+    max-height: 120px;
+  }
+
+  .input-wrap textarea::placeholder {
+    color: var(--ink-muted);
+    font-weight: 400;
+  }
+
+  .send-btn {
+    width: 40px;
+    height: 40px;
+    border: none;
+    background: var(--user-bg);
+    border-radius: 12px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: all 0.2s ease;
+    color: white;
+  }
+
+  .send-btn:hover { background: var(--accent); transform: scale(1.05); }
+  .send-btn:active { transform: scale(0.95); }
+  .send-btn:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  .send-btn svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  /* ---- Utilities ---- */
+  .hidden { display: none !important; }
+
+  @media (max-width: 380px) {
+    .header { padding: 16px 16px 12px; }
+    .brand-text h1 { font-size: 19px; }
+    .msg { font-size: 14px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <!-- Header -->
+  <div class="header">
+    <div class="header-top">
+      <div class="brand">
+        <div class="brand-icon">e</div>
+        <div class="brand-text">
+          <h1>Exhale</h1>
+          <span>Family Assistant</span>
+        </div>
+      </div>
+      <div class="rate-badge" id="rateBadge">
+        <span class="rate-dot"></span>
+        <span id="rateText">20 left</span>
+      </div>
+    </div>
+    <div class="demo-bar">
+      <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor"><path d="M8 1a7 7 0 1 0 0 14A7 7 0 0 0 8 1ZM7.25 5a.75.75 0 0 1 1.5 0v3a.75.75 0 0 1-1.5 0V5Zm.75 7a.75.75 0 1 1 0-1.5.75.75 0 0 1 0 1.5Z"/></svg>
+      <span>Demo mode — 20 questions per hour. Shared read-only data; no actions (calendar, SMS) are enabled.</span>
+    </div>
+  </div>
+
+  <!-- Messages -->
+  <div class="messages" id="messages">
+    <div class="msg welcome">
+      <span class="welcome-icon">&#127793;</span>
+      <h2>Hi there</h2>
+      <p>Ask me about school schedules, emails, homework, closures, and aftercare for the kids.</p>
+      <div class="suggestions">
+        <button class="suggestion" data-q="What do I need to know today?">Today's briefing</button>
+        <button class="suggestion" data-q="Is school closed tomorrow?">School closures</button>
+        <button class="suggestion" data-q="What are Jameson's spelling words?">Spelling words</button>
+        <button class="suggestion" data-q="Any new emails?">Recent emails</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Input -->
+  <div class="input-area">
+    <div class="input-wrap">
+      <textarea id="input" rows="1" placeholder="Ask about school, emails, schedules..." autofocus></textarea>
+      <button class="send-btn" id="sendBtn" disabled>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+const WEBHOOK_URL = 'https://n8n.srv1203909.hstgr.cloud/webhook/exhale-demo';
+const STORAGE_KEY = 'exhale-demo';
+
+const $messages = document.getElementById('messages');
+const $input = document.getElementById('input');
+const $sendBtn = document.getElementById('sendBtn');
+const $rateBadge = document.getElementById('rateBadge');
+const $rateText = document.getElementById('rateText');
+
+let sessionId = localStorage.getItem(STORAGE_KEY + '-sid');
+if (!sessionId) {
+  sessionId = crypto.randomUUID();
+  localStorage.setItem(STORAGE_KEY + '-sid', sessionId);
+}
+
+let remaining = parseInt(localStorage.getItem(STORAGE_KEY + '-rem') || '20', 10);
+let sending = false;
+
+function updateRate(n) {
+  if (n !== undefined && n !== null) {
+    remaining = n;
+    localStorage.setItem(STORAGE_KEY + '-rem', String(remaining));
+  }
+  $rateText.textContent = remaining + ' left';
+  $rateBadge.classList.remove('low', 'depleted');
+  if (remaining <= 0) $rateBadge.classList.add('depleted');
+  else if (remaining <= 5) $rateBadge.classList.add('low');
+}
+
+function scrollToBottom() {
+  requestAnimationFrame(() => {
+    $messages.scrollTop = $messages.scrollHeight;
+  });
+}
+
+function addMessage(html, cls) {
+  const el = document.createElement('div');
+  el.className = 'msg ' + cls;
+  el.innerHTML = html;
+  $messages.appendChild(el);
+  scrollToBottom();
+  return el;
+}
+
+function showTyping() {
+  const el = document.createElement('div');
+  el.className = 'typing';
+  el.id = 'typing';
+  el.innerHTML = '<span></span><span></span><span></span>';
+  $messages.appendChild(el);
+  scrollToBottom();
+}
+
+function hideTyping() {
+  const el = document.getElementById('typing');
+  if (el) el.remove();
+}
+
+function clearWelcome() {
+  const w = $messages.querySelector('.welcome');
+  if (w) w.remove();
+}
+
+// Load saved messages
+const savedMsgs = JSON.parse(localStorage.getItem(STORAGE_KEY + '-msgs') || '[]');
+if (savedMsgs.length > 0) {
+  clearWelcome();
+  savedMsgs.forEach(m => addMessage(m.html, m.cls));
+}
+
+function saveMsgs() {
+  const all = $messages.querySelectorAll('.msg:not(.welcome)');
+  const arr = [];
+  all.forEach(el => {
+    const cls = el.classList.contains('user') ? 'user' : el.classList.contains('error') ? 'error' : 'bot';
+    arr.push({ html: el.innerHTML, cls });
+  });
+  // Keep last 50 messages to avoid bloating localStorage
+  localStorage.setItem(STORAGE_KEY + '-msgs', JSON.stringify(arr.slice(-50)));
+}
+
+async function send(text) {
+  if (!text.trim() || sending) return;
+  if (remaining <= 0) {
+    addMessage('You\'ve used all 20 questions this hour. Please wait and try again later.', 'error');
+    saveMsgs();
+    return;
+  }
+
+  sending = true;
+  clearWelcome();
+  $sendBtn.disabled = true;
+  $input.value = '';
+  autoResize();
+
+  addMessage(text.replace(/</g, '&lt;').replace(/>/g, '&gt;'), 'user');
+  saveMsgs();
+  showTyping();
+
+  try {
+    const res = await fetch(WEBHOOK_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ chatInput: text, sessionId })
+    });
+
+    hideTyping();
+
+    if (res.status === 429) {
+      updateRate(0);
+      addMessage('Rate limit reached — 20 questions per hour. Please try again later.', 'error');
+    } else if (!res.ok) {
+      const data = await res.json().catch(() => ({}));
+      addMessage(data.error || 'Something went wrong. Please try again.', 'error');
+    } else {
+      const data = await res.json();
+      if (data.requestsRemaining !== undefined) updateRate(data.requestsRemaining);
+      const response = data.response || data.output || 'No response received.';
+      addMessage(response, 'bot');
+    }
+  } catch (err) {
+    hideTyping();
+    addMessage('Could not reach the server. Check your connection and try again.', 'error');
+  }
+
+  saveMsgs();
+  sending = false;
+  $sendBtn.disabled = !$input.value.trim();
+}
+
+// Auto-resize textarea
+function autoResize() {
+  $input.style.height = 'auto';
+  $input.style.height = Math.min($input.scrollHeight, 120) + 'px';
+}
+
+$input.addEventListener('input', () => {
+  autoResize();
+  $sendBtn.disabled = !$input.value.trim() || sending;
+});
+
+$input.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault();
+    send($input.value);
+  }
+});
+
+$sendBtn.addEventListener('click', () => send($input.value));
+
+// Suggestion buttons
+document.addEventListener('click', (e) => {
+  if (e.target.classList.contains('suggestion')) {
+    send(e.target.dataset.q);
+  }
+});
+
+updateRate();
+</script>
+</body>
+</html>
