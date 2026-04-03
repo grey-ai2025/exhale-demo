@@ -506,6 +506,23 @@ function scrollToBottom() {
   });
 }
 
+function formatResponse(text) {
+  let out = text;
+  // Convert Markdown bold **text** to <b>text</b> (but skip if already HTML)
+  out = out.replace(/\*\*(.+?)\*\*/g, '<b>$1</b>');
+  // Convert Markdown italic _text_ (single underscore, not in URLs)
+  out = out.replace(/(?<![\/\w])_([^_]+?)_(?!\w)/g, '<i>$1</i>');
+  // Convert Markdown links [text](url) to <a> tags
+  out = out.replace(/\[([^\]]+?)\]\((https?:\/\/[^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>');
+  // Convert plain URLs not already in href="" or >url< to clickable links
+  out = out.replace(/(?<!href="|">)(https?:\/\/[^\s<)"]+)/g, '<a href="$1" target="_blank" rel="noopener">$1</a>');
+  // Convert line breaks
+  out = out.replace(/\n/g, '<br>');
+  // Convert "- " list items to cleaner format
+  out = out.replace(/(^|<br>)\s*[-–]\s+/g, '$1<span style="display:inline-block;width:8px;margin-right:6px;color:var(--accent)">&#8226;</span>');
+  return out;
+}
+
 function addMessage(html, cls) {
   const el = document.createElement('div');
   el.className = 'msg ' + cls;
@@ -589,7 +606,7 @@ async function send(text) {
       const data = await res.json();
       if (data.requestsRemaining !== undefined) updateRate(data.requestsRemaining);
       const response = data.response || data.output || 'No response received.';
-      addMessage(response, 'bot');
+      addMessage(formatResponse(response), 'bot');
     }
   } catch (err) {
     hideTyping();
