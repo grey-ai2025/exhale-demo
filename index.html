@@ -276,9 +276,16 @@
   }
 
   .welcome-icon {
-    font-size: 36px;
-    margin-bottom: 12px;
+    width: 72px;
+    height: 72px;
+    margin: 0 auto 18px;
     display: block;
+    filter: drop-shadow(0 0 24px rgba(92, 236, 211, 0.22));
+  }
+  .welcome-icon svg { width: 100%; height: 100%; display: block; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .welcome-icon animate { display: none; }
   }
 
   .welcome h2 {
@@ -466,15 +473,15 @@
     </div>
     <div class="demo-bar">
       <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor"><path d="M8 1a7 7 0 1 0 0 14A7 7 0 0 0 8 1ZM7.25 5a.75.75 0 0 1 1.5 0v3a.75.75 0 0 1-1.5 0V5Zm.75 7a.75.75 0 1 1 0-1.5.75.75 0 0 1 0 1.5Z"/></svg>
-      <span>Demo mode — 20 questions, no actions are enabled.</span>
+      <span>Demo mode — 20 questions total, no actions are enabled.</span>
     </div>
   </div>
 
   <!-- Messages -->
   <div class="messages" id="messages">
     <div class="msg welcome">
-      <span class="welcome-icon">&#127793;</span>
-      <h2>Hi there</h2>
+      <div class="welcome-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 72 72" fill="none"><defs><linearGradient id="welcomeGrad" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#ADFBF6"/><stop offset="100%" stop-color="#5CECD3"/></linearGradient></defs><circle cx="36" cy="36" r="6" fill="url(#welcomeGrad)" opacity="0.95"/><circle cx="36" cy="36" r="10" stroke="url(#welcomeGrad)" stroke-width="1.4" fill="none" opacity="0.55"><animate attributeName="r" values="10;30;10" dur="6s" repeatCount="indefinite" calcMode="spline" keySplines="0.4 0 0.2 1; 0.4 0 0.2 1"/><animate attributeName="opacity" values="0.55;0;0.55" dur="6s" repeatCount="indefinite" calcMode="spline" keySplines="0.4 0 0.2 1; 0.4 0 0.2 1"/></circle><circle cx="36" cy="36" r="10" stroke="url(#welcomeGrad)" stroke-width="1.2" fill="none" opacity="0"><animate attributeName="r" values="10;30;10" dur="6s" begin="2s" repeatCount="indefinite" calcMode="spline" keySplines="0.4 0 0.2 1; 0.4 0 0.2 1"/><animate attributeName="opacity" values="0.45;0;0.45" dur="6s" begin="2s" repeatCount="indefinite" calcMode="spline" keySplines="0.4 0 0.2 1; 0.4 0 0.2 1"/></circle><circle cx="36" cy="36" r="10" stroke="url(#welcomeGrad)" stroke-width="1" fill="none" opacity="0"><animate attributeName="r" values="10;30;10" dur="6s" begin="4s" repeatCount="indefinite" calcMode="spline" keySplines="0.4 0 0.2 1; 0.4 0 0.2 1"/><animate attributeName="opacity" values="0.35;0;0.35" dur="6s" begin="4s" repeatCount="indefinite" calcMode="spline" keySplines="0.4 0 0.2 1; 0.4 0 0.2 1"/></circle></svg></div>
+      <h2>Breathe in. Breathe out.</h2>
       <p>Ask me about school schedules, emails, homework, closures, and aftercare for the kids.</p>
       <div class="suggestions">
         <button class="suggestion" data-q="What do I need to know today?">Today's briefing</button>
@@ -511,6 +518,13 @@ let sessionId = localStorage.getItem(STORAGE_KEY + '-sid');
 if (!sessionId) {
   sessionId = crypto.randomUUID();
   localStorage.setItem(STORAGE_KEY + '-sid', sessionId);
+}
+
+// Persistent client id — used for rate limiting, never reset on clear
+let clientId = localStorage.getItem(STORAGE_KEY + '-cid');
+if (!clientId) {
+  clientId = crypto.randomUUID();
+  localStorage.setItem(STORAGE_KEY + '-cid', clientId);
 }
 
 let remaining = parseInt(localStorage.getItem(STORAGE_KEY + '-rem') || '20', 10);
@@ -599,7 +613,7 @@ function saveMsgs() {
 async function send(text) {
   if (!text.trim() || sending) return;
   if (remaining <= 0) {
-    addMessage('You\'ve used all 20 questions this hour. Please wait and try again later.', 'error');
+    addMessage('You\'ve used all 20 questions for this demo.', 'error');
     saveMsgs();
     return;
   }
@@ -618,14 +632,14 @@ async function send(text) {
     const res = await fetch(WEBHOOK_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ chatInput: text, sessionId })
+      body: JSON.stringify({ chatInput: text, sessionId, clientId })
     });
 
     hideTyping();
 
     if (res.status === 429) {
       updateRate(0);
-      addMessage('Rate limit reached — 20 questions per hour. Please try again later.', 'error');
+      addMessage('Demo limit reached — 20 questions total.', 'error');
     } else if (!res.ok) {
       const data = await res.json().catch(() => ({}));
       addMessage(data.error || 'Something went wrong. Please try again.', 'error');
@@ -675,8 +689,8 @@ $clearBtn.addEventListener('click', () => {
   // Clear DOM and restore the welcome screen
   $messages.innerHTML = `
     <div class="msg welcome">
-      <span class="welcome-icon">&#127793;</span>
-      <h2>Hi there</h2>
+      <div class="welcome-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 72 72" fill="none"><defs><linearGradient id="welcomeGrad" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#ADFBF6"/><stop offset="100%" stop-color="#5CECD3"/></linearGradient></defs><circle cx="36" cy="36" r="6" fill="url(#welcomeGrad)" opacity="0.95"/><circle cx="36" cy="36" r="10" stroke="url(#welcomeGrad)" stroke-width="1.4" fill="none" opacity="0.55"><animate attributeName="r" values="10;30;10" dur="6s" repeatCount="indefinite" calcMode="spline" keySplines="0.4 0 0.2 1; 0.4 0 0.2 1"/><animate attributeName="opacity" values="0.55;0;0.55" dur="6s" repeatCount="indefinite" calcMode="spline" keySplines="0.4 0 0.2 1; 0.4 0 0.2 1"/></circle><circle cx="36" cy="36" r="10" stroke="url(#welcomeGrad)" stroke-width="1.2" fill="none" opacity="0"><animate attributeName="r" values="10;30;10" dur="6s" begin="2s" repeatCount="indefinite" calcMode="spline" keySplines="0.4 0 0.2 1; 0.4 0 0.2 1"/><animate attributeName="opacity" values="0.45;0;0.45" dur="6s" begin="2s" repeatCount="indefinite" calcMode="spline" keySplines="0.4 0 0.2 1; 0.4 0 0.2 1"/></circle><circle cx="36" cy="36" r="10" stroke="url(#welcomeGrad)" stroke-width="1" fill="none" opacity="0"><animate attributeName="r" values="10;30;10" dur="6s" begin="4s" repeatCount="indefinite" calcMode="spline" keySplines="0.4 0 0.2 1; 0.4 0 0.2 1"/><animate attributeName="opacity" values="0.35;0;0.35" dur="6s" begin="4s" repeatCount="indefinite" calcMode="spline" keySplines="0.4 0 0.2 1; 0.4 0 0.2 1"/></circle></svg></div>
+      <h2>Breathe in. Breathe out.</h2>
       <p>Ask me about school schedules, emails, homework, closures, and aftercare for the kids.</p>
       <div class="suggestions">
         <button class="suggestion" data-q="What do I need to know today?">Today's briefing</button>
