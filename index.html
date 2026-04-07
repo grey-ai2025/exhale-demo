@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Exhale by greyai.ai — The AI executive for executives</title>
+<title>Exhale by greyai.ai — The AI executive for Executives Parents</title>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='luxGrad' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%23ADFBF6'/%3E%3Cstop offset='100%25' stop-color='%235CECD3'/%3E%3C/linearGradient%3E%3Cfilter id='glow' x='-50%25' y='-50%25' width='200%25' height='200%25'%3E%3CfeGaussianBlur stdDeviation='3' result='coloredBlur'/%3E%3CfeMerge%3E%3CfeMergeNode in='coloredBlur'/%3E%3CfeMergeNode in='coloredBlur'/%3E%3CfeMergeNode in='SourceGraphic'/%3E%3C/feMerge%3E%3C/filter%3E%3C/defs%3E%3Crect width='64' height='64' rx='10' fill='%230a0a0f'/%3E%3Ctext x='32' y='46' text-anchor='middle' font-family='Georgia, serif' font-size='36' font-weight='300' fill='url(%23luxGrad)' filter='url(%23glow)'%3EE%3C/text%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -109,11 +109,29 @@
     line-height: 1;
   }
 
-  .brand-text span {
-    font-size: 12px;
+  .brand-text {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .brand-text .brand-sep {
+    color: var(--accent);
+    font-size: 18px;
+    line-height: 1;
+    font-weight: 400;
+    opacity: 0.7;
+  }
+  .brand-text .brand-tag {
+    font-size: 11px;
     color: var(--ink-muted);
-    letter-spacing: 0.02em;
+    letter-spacing: 0.08em;
     font-weight: 500;
+    text-transform: uppercase;
+  }
+  .brand-text .brand-accent {
+    color: var(--accent);
+    font-weight: 600;
   }
 
   .rate-badge {
@@ -457,8 +475,7 @@
       <div class="brand">
         <div class="brand-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><defs><linearGradient id="luxGrad" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#ADFBF6"/><stop offset="100%" stop-color="#5CECD3"/></linearGradient><filter id="glow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="3" result="coloredBlur"/><feMerge><feMergeNode in="coloredBlur"/><feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs><rect width="64" height="64" rx="10" fill="#0a0a0f"/><text x="32" y="46" text-anchor="middle" font-family="Georgia, serif" font-size="36" font-weight="300" fill="url(#luxGrad)" filter="url(#glow)">E</text></svg></div>
         <div class="brand-text">
-          <h1>Exhale</h1>
-         
+          <h1>Exhale</h1><span class="brand-sep">·</span><span class="brand-tag">by <span class="brand-accent">Grey&nbsp;AI</span></span>
         </div>
       </div>
       <div style="display:flex;align-items:center;gap:8px;">
@@ -481,7 +498,7 @@
   <div class="messages" id="messages">
     <div class="msg welcome">
       <div class="welcome-icon"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 72 72" fill="none"><defs><linearGradient id="welcomeGrad" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#ADFBF6"/><stop offset="100%" stop-color="#5CECD3"/></linearGradient></defs><circle cx="36" cy="36" r="6" fill="url(#welcomeGrad)" opacity="0.95"/><circle cx="36" cy="36" r="10" stroke="url(#welcomeGrad)" stroke-width="1.4" fill="none" opacity="0.55"><animate attributeName="r" values="10;30;10" dur="6s" repeatCount="indefinite" calcMode="spline" keySplines="0.4 0 0.2 1; 0.4 0 0.2 1"/><animate attributeName="opacity" values="0.55;0;0.55" dur="6s" repeatCount="indefinite" calcMode="spline" keySplines="0.4 0 0.2 1; 0.4 0 0.2 1"/></circle><circle cx="36" cy="36" r="10" stroke="url(#welcomeGrad)" stroke-width="1.2" fill="none" opacity="0"><animate attributeName="r" values="10;30;10" dur="6s" begin="2s" repeatCount="indefinite" calcMode="spline" keySplines="0.4 0 0.2 1; 0.4 0 0.2 1"/><animate attributeName="opacity" values="0.45;0;0.45" dur="6s" begin="2s" repeatCount="indefinite" calcMode="spline" keySplines="0.4 0 0.2 1; 0.4 0 0.2 1"/></circle><circle cx="36" cy="36" r="10" stroke="url(#welcomeGrad)" stroke-width="1" fill="none" opacity="0"><animate attributeName="r" values="10;30;10" dur="6s" begin="4s" repeatCount="indefinite" calcMode="spline" keySplines="0.4 0 0.2 1; 0.4 0 0.2 1"/><animate attributeName="opacity" values="0.35;0;0.35" dur="6s" begin="4s" repeatCount="indefinite" calcMode="spline" keySplines="0.4 0 0.2 1; 0.4 0 0.2 1"/></circle></svg></div>
-      <h2>Breathe in. Breathe out.</h2>
+      <h2>The AI executive for Executives Parents</h2>
       <p>Ask me about school schedules, emails, homework, closures, and aftercare for the kids.</p>
       <div class="suggestions">
         <button class="suggestion" data-q="What do I need to know today?">Today's briefing</button>
